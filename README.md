@@ -33,9 +33,9 @@ The IO Playground is a tool for students to learn about microcontrollers and how
 
 ## Usage
 
-1. **Temperature Monitoring**: Visit the `/thermometer` route to view the thermometer visualization and real-time temperature reading.
-2. **LED Control**: Visit the `/led_control` route to toggle the LED connected to the ESP32.
-3. **WebSocket Communication**: The web interface uses WebSocket communication for real-time updates. No manual refreshing is required.
+1. **Temperature Monitoring**: Visit the `/thermometer` route to view the thermometer visualization and real-time temperature reading
+2. **LED Control**: Visit the `/led_control` route to toggle the LED connected to the ESP32
+3. **WebSocket Communication**: The web interface uses WebSocket communication for real-time updates. No manual refreshing is required
 
 ## Meet the Team
 
