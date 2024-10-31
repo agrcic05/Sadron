@@ -13,8 +13,8 @@
 // Define GPIO pins
 const int ledPin = 18;
 const int tempPin = 19;
-const int fsrAnalogPin = 4;  // FSR connected to analog pin 4
-const int motorPin = 22;     // Pin for DC motor control
+const int fsrAnalogPin = 35;  // FSR connected to analog pin 4
+const int motorPin = 32;     // Pin for DC motor control
 const int servoPin = 26;     // Pin for Servo motor control
 const int sdaPin = 21;       // SDA pin for I2C LCD
 const int sclPin = 22;       // SCL pin for I2C LCD
@@ -250,7 +250,7 @@ float calculateForceFromVoltage(float voltage) {
   }
 
   // Convert voltage to force (adjust this based on your sensor's specifications)
-  float force = voltage * 1000;  // Example multiplier, replace with actual sensor calibration
+  float force = voltage * 55;  // Example multiplier, replace with actual sensor calibration
 
   return force;
 }
