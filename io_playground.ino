@@ -27,8 +27,10 @@ Servo myServo;  // Create a Servo object (ESP32Servo)
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Initialize LCD (16x2 display)
 
 // WiFi name and password
-const char* ssid = "OSU_STEM";
-const char* password = "123456789";
+// const char* ssid = "OSU_STEM";
+// const char* password = "123456789";
+const char* ssid = "SpectrumSetup-7B";
+const char* password = "oceanwagon217";
 
 // Initialize OneWire and DallasTemperature sensors
 OneWire oneWire(tempPin);
@@ -182,6 +184,7 @@ void setup() {
   server.on("/lcd_display", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", lcd_display_html);  // Serve new LCD control page
   });
+  
 
   // Start web server
   server.begin();
@@ -203,11 +206,27 @@ void toggleLED() {
   digitalWrite(ledPin, ledState == LOW ? HIGH : LOW);  // Toggle LED state
 }
 
-// Function to toggle the DC motor
+// Global variable to track motor state
+bool motorState = false; // False = OFF, True = ON
+unsigned long lastToggleTime = 0;
+const unsigned long debounceDelay = 200;  // Debounce delay in milliseconds
+
+// Function to toggle the DC motor with debounce
 void toggleMotor() {
-  int motorState = digitalRead(motorPin);
-  digitalWrite(motorPin, motorState == LOW ? HIGH : LOW);  // Toggle motor state
-  webSocket.broadcastTXT(motorState == LOW ? "ON" : "OFF");
+  // Debounce check
+  unsigned long currentTime = millis();
+  if (currentTime - lastToggleTime < debounceDelay) {
+    return;  // Ignore if called within debounce delay
+  }
+  lastToggleTime = currentTime;  // Update the last toggle time
+
+  motorState = !motorState;  // Toggle motor state
+  digitalWrite(motorPin, motorState ? HIGH : LOW);  // Apply new state to motor pin
+  Serial.print("Toggling Motor. New state: ");
+  Serial.println(motorState ? "ON" : "OFF");
+
+  // Send current motor status to clients
+  webSocket.broadcastTXT(motorState ? "ON" : "OFF");
 }
 
 void handleWebSocketMessage(uint8_t num, uint8_t *payload, size_t length) {
