@@ -7,7 +7,7 @@
 #include <WiFi.h>
 #include <ESP32Servo.h>  // Include ESP32Servo library
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C for LCD
+//#include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C for LCD
 
 // Define GPIO pins
 const int ledPin = 18;
@@ -23,13 +23,13 @@ float voltage;
 float force;
 
 Servo myServo;  // Create a Servo object (ESP32Servo)
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // Initialize LCD (16x2 display)
+//LiquidCrystal_I2C lcd(0x27, 16, 2);  // Initialize LCD (16x2 display)
 
 // WiFi name and password
-// const char* ssid = "OSU_STEM";
-// const char* password = "123456789";
-const char* ssid = "SpectrumSetup-A8EE";
-const char* password = "wiseevent286";
+ const char* ssid = "OSU_STEM";
+ const char* password = "123456789";
+//const char* ssid = "SpectrumSetup-A8EE";
+//const char* password = "wiseevent286";
 
 // Initialize OneWire and DallasTemperature sensors
 OneWire oneWire(tempPin);
@@ -116,18 +116,19 @@ void handleWebSocketText(uint8_t *payload, size_t length) {
       Serial.println("Invalid servo position received!");
     }
 
-  } else if (message.startsWith("lcd:")) {
+ /* } else if (message.startsWith("lcd:")) {
     String lcdText = message.substring(4);  // Extract text after "lcd:"
     updateLCD(lcdText);  // Update the LCD with the provided text
+  } */
   }
 }
 
 // Function to update LCD display
-void updateLCD(String text) {
+/*void updateLCD(String text) {
   lcd.clear();
   lcd.setCursor(0, 0);  // Set cursor to first row
   lcd.print(text);      // Print the text on LCD
-}
+} */
 
 // Arduino required setup function
 void setup() {
@@ -158,8 +159,8 @@ void setup() {
   sensors.begin();
 
   // Initialize LCD
-  lcd.init();
-  lcd.backlight();
+  //lcd.init();
+  //lcd.backlight();
 
   // Configure server routes for different pages
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {

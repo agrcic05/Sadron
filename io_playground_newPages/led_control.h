@@ -1,7 +1,9 @@
 const char led_control_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LED Control</title>
   <style>
     :root {
@@ -10,16 +12,16 @@ const char led_control_html[] PROGMEM = R"rawliteral(
       --text-color: #333;
       --secondary-text-color: #666;
       --accent-color: #4CAF50;
-      --button-bg-color: #3498db; /* Default button color */
-      --button-hover-bg-color: #2980b9; /* Hover effect color */
+      --button-bg-color: #3498db;
+      --button-hover-bg-color: #2980b9;
       --button-text-color: #fff;
       --button-border-radius: 5px;
       --button-padding: 12px 20px;
       --button-font-size: 16px;
-      --led-size: 50px;
+      --led-size: 60px;
       --container-padding: 20px;
       --container-border-radius: 10px;
-      --container-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      --container-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     body {
@@ -35,7 +37,6 @@ const char led_control_html[] PROGMEM = R"rawliteral(
       text-align: center;
     }
 
-    /* Container to separate content from background */
     .container {
       background-color: var(--container-bg);
       padding: var(--container-padding);
@@ -56,18 +57,21 @@ const char led_control_html[] PROGMEM = R"rawliteral(
       height: var(--led-size);
       background-color: gray;
       border-radius: 50%;
-      box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.3);
       display: inline-block;
-      margin-right: 20px;
       transition: background-color 0.3s ease;
+      margin-bottom: 20px;
     }
+    
     .led.on {
-      background-color: #f00; /* Red color for on state */
+      background-color: #f00;
     }
 
-    /* Home Button Styling */
-    #homeButton {
-      margin-top: 20px;
+    /* Button Styling */
+    .button {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
       padding: var(--button-padding);
       font-size: var(--button-font-size);
       color: var(--button-text-color);
@@ -78,19 +82,17 @@ const char led_control_html[] PROGMEM = R"rawliteral(
       transition: background-color 0.3s ease;
     }
 
-    #homeButton:hover {
+    .button:hover {
       background-color: var(--button-hover-bg-color);
     }
-
   </style>
 </head>
 <body>
   <div class="container">
     <h1>LED Control</h1>
     <div class="led" id="ledIndicator"></div>
-    <br>
-    <button onclick="toggleLED()">Toggle LED</button><br><br>
-    <button id="homeButton" onclick="goToHome()">Home</button>
+    <button class="button" onclick="toggleLED()">Toggle LED</button>
+    <button class="button" onclick="goToHome()">Home</button>
   </div>
 
   <script>
@@ -106,7 +108,7 @@ const char led_control_html[] PROGMEM = R"rawliteral(
     }
 
     function goToHome() {
-      window.location.href = "/"; // Change this to the actual home page URL if necessary
+      window.location.href = "/";
     }
 
     // Update LED indicator based on initial LED state
@@ -121,7 +123,6 @@ const char led_control_html[] PROGMEM = R"rawliteral(
       };
     };
 
-    // Function to update LED indicator based on LED state
     function updateLEDIndicator(state) {
       var ledIndicator = document.getElementById('ledIndicator');
       if (state === 'ON') {
