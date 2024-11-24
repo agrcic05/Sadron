@@ -6,92 +6,152 @@ const char thermometer_html[] PROGMEM = R"rawliteral(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thermometer</title>
   <style>
-    body { font-family: "Georgia"; text-align: center; font-size: 16px;}
-    h1 { font-weight: bold; font-size: 24px;}
-    h2 { font-weight: bold; font-size: 20px;}
-    button { font-weight: bold; font-size: 16px;}
-    #thermometer {
-      width: 200px;
-      height: 450px;
-     position: relative;
-      border-radius: 10px;
-      margin: auto;
-      background: linear-gradient(to top, #0000FF, #FF0000);
+    :root {
+      --bg-color: #C8102E; /* Scarlet */
+      --secondary-bg-color: #54585A; /* Grey */
+      --container-bg: #fff;
+      --text-color: #333;
+      --button-bg-color: #000;
+      --button-hover-bg-color: #444;
+      --button-text-color: #fff;
+      --button-border-radius: 5px;
+      --button-padding: 12px 20px;
+      --button-font-size: 16px;
     }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-color), var(--secondary-bg-color));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--text-color);
+    }
+
+    .container {
+      text-align: center;
+      background-color: var(--container-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      width: 80%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    /* Thermometer Styling */
+    #thermometer {
+      width: 50px;
+      height: 300px;
+      position: relative;
+      margin: auto;
+      border-radius: 25px;
+      background: linear-gradient(to top, #0000FF, #FF0000);
+      box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
     #mercury {
       width: 100%;
       position: absolute;
       bottom: 0;
       background-color: #ff0000;
-      border-radius: 10px 10px 0 0;
+      border-radius: 25px 25px 0 0;
       transition: height 0.5s;
+    }
+
+    /* Home Button */
+    #homeButton {
+      margin-top: 20px;
+      padding: var(--button-padding);
+      font-size: var(--button-font-size);
+      color: var(--button-text-color);
+      background-color: var(--button-bg-color);
+      border: none;
+      border-radius: var(--button-border-radius);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #homeButton:hover {
+      background-color: var(--button-hover-bg-color);
     }
   </style>
 </head>
 <body>
-  <h1>Thermometer</h1>
-  <div id="thermometer">
-    <div id="mercury"></div>
+  <div class="container">
+    <h1>Thermometer</h1>
+    <div id="thermometer">
+      <div id="mercury"></div>
+    </div>
+    <h2>Temperature: <span id="tempC">--</span> (°C) / <span id="tempF">--</span> (°F)</h2>
+    <button id="homeButton" onclick="goToHome()">Home</button>
   </div>
-  <h2>Temperature: <span id="temp">--</span></h2>
-  <button onclick="goToHome()">Home</button>
+
   <script>
     var socket;
 
-    // Function to initialize WebSocket connection
     function initWebSocket() {
       socket = new WebSocket('ws://' + window.location.hostname + ':81/');
-
-      // WebSocket event listener for receiving temperature data
+      
       socket.onmessage = function(event) {
-      var temperature = parseFloat(event.data);
-      updateThermometer(temperature);
+        var temperature = parseFloat(event.data);
+        updateThermometer(temperature);
       };
-    
-      // WebSocket event listener for handling errors
+      
       socket.onerror = function(event) {
         console.error("WebSocket error:", event);
       };
-
-      // Immediately refresh temperature data upon connection
+      
       refreshTemperature();
     }
 
-    // Function to refresh temperature data
     function refreshTemperature() {
       if (socket.readyState === WebSocket.OPEN) {
         socket.send('refreshTemp');
       } else {
-      console.error("WebSocket connection is not open.");
+        console.error("WebSocket connection is not open.");
       }
     }
 
-    // Function to update thermometer and temperature display
-    function updateThermometer(temp) {
-      // Adjust the range to fit temperatures from -5°C to 50°C
+    function updateThermometer(tempC) {
       var minValue = -5;
       var maxValue = 50;
 
       var mercury = document.getElementById('mercury');
-      var height = 450; // Maximum height of thermometer
-      var maxHeight = height - 20; // Leave some space at the top
-      var minHeight = 50; // Minimum height to show
-      var range = maxValue - minValue; // Temperature range
+      var height = 300;
+      var maxHeight = height - 20;
+      var minHeight = 10;
+      var range = maxValue - minValue;
 
-      // Adjust the temperature to fit the new range
-      temp = Math.min(Math.max(temp, minValue), maxValue);
+      tempC = Math.min(Math.max(tempC, minValue), maxValue);
 
-      var mercuryHeight = Math.min(Math.max((temp - minValue) / range * maxHeight, minHeight), maxHeight);
+      var mercuryHeight = Math.min(Math.max((tempC - minValue) / range * maxHeight, minHeight), maxHeight);
       mercury.style.height = mercuryHeight + 'px';
-      document.getElementById('temp').innerText = temp.toFixed(2) + '°C';
+      
+      document.getElementById('tempC').innerText = tempC.toFixed(2);  // Celsius
+      var tempF = celsiusToFahrenheit(tempC);  // Convert to Fahrenheit
+      document.getElementById('tempF').innerText = tempF.toFixed(2);  // Fahrenheit
 
-      // Calculate color based on temperature
-      var percent = (temp - minValue) / (maxValue - minValue);
+      var percent = (tempC - minValue) / (maxValue - minValue);
       var color = interpolateColor("#0000FF", "#FF0000", percent);
       document.getElementById('thermometer').style.background = 'linear-gradient(to top, #0000FF, ' + color + ')';
     }
 
-    // Interpolate color based on percentage
+    function celsiusToFahrenheit(celsius) {
+      return (celsius * 9/5) + 32;
+    }
+
     function interpolateColor(startColor, endColor, percent) {
       var startRGB = hexToRgb(startColor);
       var endRGB = hexToRgb(endColor);
@@ -103,7 +163,6 @@ const char thermometer_html[] PROGMEM = R"rawliteral(
       return rgbToHex(r, g, b);
     }
 
-    // Convert hex color to RGB
     function hexToRgb(hex) {
       var bigint = parseInt(hex.substring(1), 16);
       var r = (bigint >> 16) & 255;
@@ -112,20 +171,15 @@ const char thermometer_html[] PROGMEM = R"rawliteral(
       return { r: r, g: g, b: b };
     }
 
-    // Convert RGB color to hex
     function rgbToHex(r, g, b) {
       return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 
-    // Function to navigate to home page
     function goToHome() {
       window.location.href = "/";
     }
     
-    // Initial WebSocket connection
     initWebSocket();
-
-    // Periodically refresh temperature data every 2 seconds
     setInterval(refreshTemperature, 2000);
   </script>
 </body>
